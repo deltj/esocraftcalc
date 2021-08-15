@@ -1,3 +1,64 @@
+var priceTable = {
+    //  Light
+    'Jute' : 1,
+    'Flax' : 1,
+    'Cotton' : 1,
+    'Spidersilk' : 1,
+    'Ebonthread' : 1,
+    'Kresh Fiber' : 1,
+    'Ironthread' : 1,
+    'Silverweave' : 1,
+    'Void Cloth' : 1,
+    'Ancestor Silk' : 33,
+
+    //  Medium
+    'Rawhide' : 1,
+    'Hide' : 1,
+    'Leather' : 1,
+    'Thick Leather' : 1,
+    'Fell Hide' : 1,
+    'Topgrain Hide' : 1,
+    'Iron Hide' : 1,
+    'Superb Hide' : 1,
+    'Shadowhide' : 1,
+    'Rubedo Leather' : 15,
+
+    //  Heavy
+    'Iron Ingot' : 1,
+    'Steel Ingot' : 1,
+    'Orichalcum Ingot' : 1,
+    'Dwarven Ingot' : 1,
+    'Ebony Ingot' : 1,
+    'Calcinium Ingot' : 1,
+    'Galatite Ingot' : 1,
+    'Quicksilver Ingot' : 1,
+    'Voidstone Ingot' : 1,
+    'Rubedite Ingot' : 6.5,
+
+    //  Clothing improvement
+    'Hemming' : 17,
+    'Embroidery' : 17,
+    'Elegant Lining' : 300,
+    'Dreugh Wax' : 16000,
+
+    //  Blacksmithing improvement
+    'Honing Stone' : 19,
+    'Dwarven Oil' : 19,
+    'Grain Solvent' : 600,
+    'Tempering Alloy' : 8203,
+
+    //  Armor traits
+    'Sapphire' : 4,
+    'Garnet' : 3,
+    'Diamond' : 3,
+    'Bloodstone' : 3,
+    'Fortified Nirncrux' : 2373,
+    'Sardonyx' : 4,
+    'Quartz' : 2.8,
+    'Emerald' : 15,
+    'Almandine' : 2,
+}
+
 var armorSlots = [
     'Head',
     'Shoulders',
@@ -401,20 +462,31 @@ function updateShoppingList() {
     //  Make a new shopping list
     var oldShoppingListTableBody = shoppingListTable.getElementsByTagName('tbody')[0]
     var newShoppingListTableBody = document.createElement('tbody')
+    var totalCost = 0
     Object.keys(shoppingList).forEach(function(item) {
         var shoppingListRow = document.createElement('tr')
         var itemCell = document.createElement('td')
         var qtyCell = document.createElement('td')
+        var costCell = document.createElement('td')
+
+        var cost = shoppingList[item] * priceTable[item]
 
         itemCell.innerHTML = item
         qtyCell.innerHTML = shoppingList[item]
+        costCell.innerHTML = cost
+
+        totalCost += cost
 
         shoppingListRow.appendChild(itemCell)
         shoppingListRow.appendChild(qtyCell)
+        shoppingListRow.appendChild(costCell)
 
         newShoppingListTableBody.appendChild(shoppingListRow)
     })
     shoppingListTable.replaceChild(newShoppingListTableBody, oldShoppingListTableBody)
+
+    shoppingListTableFooter = shoppingListTable.getElementsByTagName('tfoot')[0]
+    shoppingListTableFooter.rows[0].cells[1].innerHTML = totalCost
 }
 
 function updateArmorRow(rowIndex) {

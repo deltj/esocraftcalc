@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8">
     <title>ESO Crafting Calculator</title>
+    <!--<link rel="stylesheet" href="normalize.css">-->
+    <!--<link rel="stylesheet" href="skeleton.css">-->
   </head>
   <body>
     <h1>Armor</h1>
@@ -16,16 +18,16 @@
                   <th>Trait</th>
                   <th>Quality</th>
                   <th>Mat</th>
-                  <th>Mat Qty</th>
+                  <th>Qty</th>
                   <th>Trait Gem</th>
                   <th>Fine</th>
-                  <th>Fine Qty</th>
+                  <th>Qty</th>
                   <th>Superior</th>
-                  <th>Superior Qty</th>
+                  <th>Qty</th>
                   <th>Epic</th>
-                  <th>Epic Qty</th>
+                  <th>Qty</th>
                   <th>Legendary</th>
-                  <th>Legendary Qty</th>
+                  <th>Qty</th>
               </tr>
           </thead>
           <tbody></tbody>
@@ -39,9 +41,16 @@
         <tr>
           <th>Item</th>
           <th>Quantity</th>
+          <th>Cost</th>
         </tr>
       </thead>
       <tbody></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2">Total</td>
+          <td>0</td>
+        </tr>
+      </tfoot>
     </table>
 
     <script src="./renderer.js"></script>
