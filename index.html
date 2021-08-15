@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>ESO Crafting Calculator</title>
+  </head>
+  <body>
+    <h1>Armor</h1>
+    <form id="itemTable">
+        <table id="armorTable" border="1">
+          <thead>
+              <tr>
+                  <th>Slot</th>
+                  <th>Level</th>
+                  <th>Weight</th>
+                  <th>Trait</th>
+                  <th>Quality</th>
+                  <th>Mat</th>
+                  <th>Mat Qty</th>
+                  <th>Trait Gem</th>
+                  <th>Fine</th>
+                  <th>Fine Qty</th>
+                  <th>Superior</th>
+                  <th>Superior Qty</th>
+                  <th>Epic</th>
+                  <th>Epic Qty</th>
+                  <th>Legendary</th>
+                  <th>Legendary Qty</th>
+              </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <button type="button" id="addArmorButton">+</button>
+    </form>
+
+    <h1>Shopping List</h1>
+    <table id="shoppingList" border="1">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>
