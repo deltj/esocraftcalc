@@ -129,6 +129,8 @@ var blacksmithingImprovement = {
     'Legendary' : 'Tempering Alloy'
 }
 
+var items = []
+
 function addItem() {
     var table = document.querySelector('#itemTable tbody')
     var row = document.createElement('tr')
@@ -192,17 +194,6 @@ function addItem() {
     row.appendChild(weightCell)
     row.appendChild(traitCell)
     row.appendChild(qualityCell)
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
-    row.appendChild(document.createElement('td'))
 
     table.appendChild(row)
 
@@ -395,71 +386,59 @@ function armorMatCountFromSlotAndLevel(slot, level) {
 }
 
 function updateShoppingList() {
-    var armorTable = document.querySelector('#itemTable tbody')
-    var shoppingListTable = document.getElementById('shoppingList')
-
     var shoppingList = {}
 
     //  Loop over the armor table and update the shopping list
-    for (var i = 0, row; row = armorTable.rows[i]; i++) {
-        var mat = row.cells[5].innerHTML
-        var qty = parseInt(row.cells[6].innerHTML)
-        var gem = row.cells[7].innerHTML
-        var fine = row.cells[8].innerHTML
-        var fineQty = parseInt(row.cells[9].innerHTML)
-        var superior = row.cells[10].innerHTML
-        var superiorQty = parseInt(row.cells[11].innerHTML)
-        var epic = row.cells[12].innerHTML
-        var epicQty = parseInt(row.cells[13].innerHTML)
-        var legendary = row.cells[14].innerHTML
-        var legendaryQty = parseInt(row.cells[15].innerHTML)
+    items.forEach(function (item, index) {
+        console.log(item)
 
-        if(mat in shoppingList) {
-            shoppingList[mat] += qty
+        if(item.mat in shoppingList) {
+            shoppingList[item.mat] += item.matQty
         } else {
-            shoppingList[mat] = qty
+            shoppingList[item.mat] = item.matQty
         }
 
-        if(gem in shoppingList) {
-            shoppingList[gem] += 1
+        if(item.traitGem in shoppingList) {
+            shoppingList[item.traitGem] += 1
         } else {
-            shoppingList[gem] = 1
+            shoppingList[item.traitGem] = 1
         }
 
-        if(fineQty > 0 ) {
-            if(fine in shoppingList) {
-                shoppingList[fine] += fineQty
+        if(item.fineQty > 0 ) {
+            if(item.fineMat in shoppingList) {
+                shoppingList[item.fineMat] += item.fineQty
             } else {
-                shoppingList[fine] = fineQty
+                shoppingList[item.fineMat] = item.fineQty
             }
         }
 
-        if(superiorQty > 0) {
-            if(superior in shoppingList) {
-                shoppingList[superior] += superiorQty
+        if(item.superiorQty > 0) {
+            if(item.superiorMat in shoppingList) {
+                shoppingList[item.superiorMat] += item.superiorQty
             } else {
-                shoppingList[superior] = superiorQty
+                shoppingList[item.superiorMat] = item.superiorQty
             }
         }
 
-        if(epicQty > 0) {
-            if(epic in shoppingList) {
-                shoppingList[epic] += epicQty
+        if(item.epicQty > 0) {
+            if(item.epicMat in shoppingList) {
+                shoppingList[item.epicMat] += item.epicQty
             } else {
-                shoppingList[epic] = epicQty
+                shoppingList[item.epicMat] = item.epicQty
             }
         }
 
-        if(legendaryQty > 0) {
-            if(legendary in shoppingList) {
-                shoppingList[legendary] += legendaryQty
+        if(item.legendaryQty > 0) {
+            if(item.legendaryMat in shoppingList) {
+                shoppingList[item.legendaryMat] += item.legendaryQty
             } else {
-                shoppingList[legendary] = legendaryQty
+                shoppingList[item.legendaryMat] = item.legendaryQty
             }
         }
-    }
+    })
 
-    //  Make a new shopping list
+    //  Update the shopping list table
+    var shoppingListTable = document.getElementById('shoppingList')
     var oldShoppingListTableBody = shoppingListTable.getElementsByTagName('tbody')[0]
     var newShoppingListTableBody = document.createElement('tbody')
     var totalCost = 0
@@ -495,66 +474,71 @@ function updateArmorRow(rowIndex) {
 
     //  Get item slot
     var slot = row.cells[0].childNodes[0].value
-    //console.log('slot: ' + slot)
+
     //  Get item level
     var level = row.cells[1].childNodes[0].value
-    //console.log('level: ' + level)
 
     //  Get item weight
     var weight = row.cells[2].childNodes[0].value
-    if(weight == 'Light' || weight == 'Medium') {
-        row.cells[8].innerHTML  = clothingImprovement['Fine']
-        row.cells[10].innerHTML = clothingImprovement['Superior']
-        row.cells[12].innerHTML = clothingImprovement['Epic']
-        row.cells[14].innerHTML = clothingImprovement['Legendary']
-    } else if(weight == 'Heavy') {
-        row.cells[8].innerHTML  = blacksmithingImprovement['Fine']
-        row.cells[10].innerHTML = blacksmithingImprovement['Superior']
-        row.cells[12].innerHTML = blacksmithingImprovement['Epic']
-        row.cells[14].innerHTML = blacksmithingImprovement['Legendary']
-    }
-    //console.log('weight: ' + weight)
 
-    //  Get the required material
+    //  Get the material required to craft the basic item
     var mat = armorMatFromLevelAndWeight(level, weight)
-    row.cells[5].innerHTML = mat
 
     //  Get the required material quantity
-    var matCount = armorMatCountFromSlotAndLevel(slot, level)
-    row.cells[6].innerHTML = matCount
+    var matQty = armorMatCountFromSlotAndLevel(slot, level)
 
     //  Get the required trait gem
     var trait = row.cells[3].childNodes[0].value
     var traitGem = armorTraits[trait]
-    row.cells[7].innerHTML = traitGem
 
-    //  Update improvement stuff
+    if(!items[rowIndex]) {
+        items[rowIndex] = {}
+    }
+    
+    items[rowIndex].mat = mat
+    items[rowIndex].matQty = matQty
+    items[rowIndex].traitGem = traitGem
+
+    //  Update improvement materials
+    if(weight == 'Light' || weight == 'Medium') {
+        items[rowIndex].fineMat  = clothingImprovement['Fine']
+        items[rowIndex].superiorMat = clothingImprovement['Superior']
+        items[rowIndex].epicMat = clothingImprovement['Epic']
+        items[rowIndex].legendaryMat = clothingImprovement['Legendary']
+    } else if(weight == 'Heavy') {
+        items[rowIndex].fineMat  = blacksmithingImprovement['Fine']
+        items[rowIndex].superiorMat = blacksmithingImprovement['Superior']
+        items[rowIndex].epicMat = blacksmithingImprovement['Epic']
+        items[rowIndex].legendaryMat = blacksmithingImprovement['Legendary']
+    }
+
+    //  Update improvement material quantities
     var quality = row.cells[4].childNodes[0].value
     if(quality == 'Basic') {
-        row.cells[9].innerHTML  = 0
-        row.cells[11].innerHTML = 0
-        row.cells[13].innerHTML = 0
-        row.cells[15].innerHTML = 0
+        items[rowIndex].fineQty  = 0
+        items[rowIndex].superiorQty = 0
+        items[rowIndex].epicQty = 0
+        items[rowIndex].legendaryQty = 0
     } else if(quality == 'Fine') {
-        row.cells[9].innerHTML  = 2
-        row.cells[11].innerHTML = 0
-        row.cells[13].innerHTML = 0
-        row.cells[15].innerHTML = 0
+        items[rowIndex].fineQty  = 2
+        items[rowIndex].superiorQty = 0
+        items[rowIndex].epicQty = 0
+        items[rowIndex].legendaryQty = 0
     } else if(quality == 'Superior') {
-        row.cells[9].innerHTML  = 2
-        row.cells[11].innerHTML = 3
-        row.cells[13].innerHTML = 0
-        row.cells[15].innerHTML = 0
+        items[rowIndex].fineQty  = 2
+        items[rowIndex].superiorQty = 3
+        items[rowIndex].epicQty = 0
+        items[rowIndex].legendaryQty = 0
     } else if(quality == 'Epic') {
-        row.cells[9].innerHTML  = 2
-        row.cells[11].innerHTML = 3
-        row.cells[13].innerHTML = 4
-        row.cells[15].innerHTML = 0
+        items[rowIndex].fineQty  = 2
+        items[rowIndex].superiorQty = 3
+        items[rowIndex].epicQty = 4
+        items[rowIndex].legendaryQty = 0
     } else if(quality == 'Legendary') {
-        row.cells[9].innerHTML  = 2
-        row.cells[11].innerHTML = 3
-        row.cells[13].innerHTML = 4
-        row.cells[15].innerHTML = 8
+        items[rowIndex].fineQty  = 2
+        items[rowIndex].superiorQty = 3
+        items[rowIndex].epicQty = 4
+        items[rowIndex].legendaryQty = 8
     }
 
     updateShoppingList()
