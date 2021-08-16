@@ -1,5 +1,8 @@
+const eso = require('./eso.js')
+
+//  Cached item prices used for calculating the crafting cost
 var priceTable = {
-    //  Light
+    //  Clothing/Light
     'Jute' : 1,
     'Flax' : 1,
     'Cotton' : 1,
@@ -11,7 +14,7 @@ var priceTable = {
     'Void Cloth' : 1,
     'Ancestor Silk' : 33,
 
-    //  Medium
+    //  Clothing/Medium
     'Rawhide' : 1,
     'Hide' : 1,
     'Leather' : 1,
@@ -23,7 +26,7 @@ var priceTable = {
     'Shadowhide' : 1,
     'Rubedo Leather' : 15,
 
-    //  Heavy
+    //  Blacksmithing
     'Iron Ingot' : 1,
     'Steel Ingot' : 1,
     'Orichalcum Ingot' : 1,
@@ -34,6 +37,25 @@ var priceTable = {
     'Quicksilver Ingot' : 1,
     'Voidstone Ingot' : 1,
     'Rubedite Ingot' : 6.5,
+
+    //  Woodworking
+    'Sanded Maple' : 1,
+    'Sanded Oak' : 1,
+    'Sanded Beech' : 1,
+    'Sanded Hickory' : 1,
+    'Sanded Yew' : 1,
+    'Sanded Birch' : 1,
+    'Sanded Ash' : 1,
+    'Sanded Mahogany' : 1,
+    'Sanded Nightwood' : 1,
+    'Sanded Ruby Ash' : 1,
+
+    //  Jewelry
+    'Pewter Ounces' : 1,
+    'Copper Ounces' : 1,
+    'Silver Ounces' : 1,
+    'Electrum Ounces' : 1,
+    'Platinum Ounces' : 1,
 
     //  Clothing improvement
     'Hemming' : 17,
@@ -47,6 +69,18 @@ var priceTable = {
     'Grain Solvent' : 600,
     'Tempering Alloy' : 8203,
 
+    //  Woodworking improvement
+    'Pitch' : 1,
+    'Turpen' : 1,
+    'Mastic' : 1,
+    'Rosin' : 1,
+
+    //  Jewelry improvement
+    'Terne Plating' : 1,
+    'Iridium Plating' : 1,
+    'Zircon Plating' : 1,
+    'Chromium Plating' : 1,
+
     //  Armor traits
     'Sapphire' : 4,
     'Garnet' : 3,
@@ -57,80 +91,34 @@ var priceTable = {
     'Quartz' : 2.8,
     'Emerald' : 15,
     'Almandine' : 2,
+
+    //  Weapon traits
+    'Amethyst' : 2,
+    'Turquoise' : 2,
+    'Jade' : 2,
+    'Potent Nirncrux' : 2,
+    'Chysolite' : 2,
+    'Ruby' : 2,
+    'Fire Opal' : 2,
+    'Carnelian' : 2,
+    'Citrine' : 2,
+
+    //  Jewelry traits
+    'Cobalt' : 1,
+    'Slaughterstone' : 1,
+    'Dibellium' : 1,
+    'Antimony' : 1,
+    'Aurbic Amber' : 1,
+    'Titanium' : 1,
+    'Zinc' : 1,
+    'Gilding Wax' : 1,
+    'Dawn-Prism' : 1,
 }
 
-var armorSlots = [
-    'Head',
-    'Shoulders',
-    'Chest',
-    'Waist',
-    'Feet',
-    'Hands',
-    'Legs'
-]
-
-var armorLevels = [1]
-for(let i=2; i <= 25; i++) {
-    armorLevels.push(i * 2)
-}
-for(let i=1; i <= 16; i++) {
-    armorLevels.push('CP ' + i * 10)
-}
-
-//  Level groupings for figuring out which material to use
-var levelGroup1  = ['1', '4', '6', '8', '10', '12', '14']
-var levelGroup2  = ['16', '18', '20', '22', '24']
-var levelGroup3  = ['26', '28', '30', '32', '34']
-var levelGroup4  = ['36', '38', '40', '42', '44']
-var levelGroup5  = ['46', '48', '50']
-var levelGroup6  = ['CP 10', 'CP 20', 'CP 30']
-var levelGroup7  = ['CP 40', 'CP 50', 'CP 60']
-var levelGroup8  = ['CP 70', 'CP 80']
-var levelGroup9  = ['CP 90', 'CP 100', 'CP 110', 'CP 120', 'CP 130', 'CP 140']
-var levelGroup10 = ['CP 150', 'CP 160']
-
-var armorWeights = [
-    'Light',
-    'Medium',
-    'Heavy'
-]
-
-var armorTraits = {
-    'Divines' : 'Sapphire',
-    'Invigorating' : 'Garnet',
-    'Impenetrable' : 'Diamond',
-    'Infused' : 'Bloodstone',
-    'Nirnhoned' : 'Fortified Nirncrux',
-    'Reinforced' : 'Sardonyx',
-    'Sturdy' : 'Quartz',
-    'Training' : 'Emerald',
-    'Well-Fitted' : 'Almandine'
-}
-
-var qualities = [
-    'Basic',
-    'Fine',
-    'Superior',
-    'Epic',
-    'Legendary'
-]
-
-var clothingImprovement = {
-    'Fine' : 'Hemming',
-    'Superior' : 'Embroidery',
-    'Epic' : 'Elegant Lining',
-    'Legendary' : 'Dreugh Wax'
-}
-
-var blacksmithingImprovement = {
-    'Fine' : 'Honing Stone',
-    'Superior' : 'Dwarven Oil',
-    'Epic' : 'Grain Solvent',
-    'Legendary' : 'Tempering Alloy'
-}
-
+/** The array of items to be crafted */
 var items = []
 
+/** Adds an item to the table of crafted items */
 function addItem() {
     var table = document.querySelector('#itemTable tbody')
     var row = document.createElement('tr')
@@ -141,8 +129,10 @@ function addItem() {
     var traitCell = document.createElement('td')
     var qualityCell = document.createElement('td')
 
+    var types = eso.armorSlots.concat(eso.blacksmithingWeaponTypes).concat(eso.woodworkingWeaponTypes)
+    types.sort()
     var typeSelect = document.createElement('select')
-    armorSlots.forEach(function (item, index) {
+    types.forEach(function (item, index) {
         var opt = document.createElement('option')
         opt.value = item
         opt.text = item
@@ -150,7 +140,7 @@ function addItem() {
     })
 
     var levelSelect = document.createElement('select')
-    armorLevels.forEach(function (item, index) {
+    eso.itemLevels.forEach(function (item, index) {
         var opt = document.createElement('option')
         opt.value = item
         opt.text = item
@@ -159,7 +149,7 @@ function addItem() {
     levelSelect.value = 'CP 160'
 
     var weightSelect = document.createElement('select')
-    armorWeights.forEach(function (item, index) {
+    eso.armorWeights.forEach(function (item, index) {
         var opt = document.createElement('option')
         opt.value = item
         opt.text = item
@@ -167,7 +157,7 @@ function addItem() {
     })
 
     var traitSelect = document.createElement('select')
-    for (var key in armorTraits) {
+    for (var key in eso.armorTraits) {
         var opt = document.createElement('option')
         opt.value = key
         opt.text = key
@@ -175,7 +165,7 @@ function addItem() {
     }
 
     var qualitySelect = document.createElement('select')
-    qualities.forEach(function (item, index) {
+    eso.qualities.forEach(function (item, index) {
         var opt = document.createElement('option')
         opt.value = item
         opt.text = item
@@ -197,200 +187,187 @@ function addItem() {
 
     table.appendChild(row)
 
-    updateArmorRow(document.getElementById('armorTable').rows.length - 1)
+    updateItemTableRow(document.getElementById('itemTable').rows.length - 1)
 }
 
-function armorMatFromLevelAndWeight(level, weight) {
-    if(weight == 'Light') {
-        if(levelGroup1.includes(level)) {
-            return 'Jute'
+/** Update the specified row index in the item table. */
+function updateItemTableRow(rowIndex) {
+    var itemTable = document.getElementById('itemTable')
+    var row = itemTable.rows[rowIndex]
+
+    //  If this item isn't in the items array, add it
+    if(!items[rowIndex]) {
+        items[rowIndex] = {}
+    }
+
+    var type = row.cells[0].childNodes[0].value
+    var level = row.cells[1].childNodes[0].value
+    var weight = row.cells[2].childNodes[0].value
+    var quality = row.cells[4].childNodes[0].value
+
+    //  Show/hide the weight selector depending on whether the item is armor
+    var weightSelect = row.cells[2].childNodes[0]
+    var traitSelect = row.cells[3].childNodes[0]
+    
+    //  Check if item type has changed
+    if(items[rowIndex].type != type) {
+        if(eso.isArmor(type)) {
+            //  Show weight select
+            weightSelect.style.display = 'block'
+
+            //  Set armor traits
+            var newTraitSelect = document.createElement('select')
+            for (var key in eso.armorTraits) {
+                var opt = document.createElement('option')
+                opt.value = key
+                opt.text = key
+                newTraitSelect.appendChild(opt)
+            }
+            row.cells[3].replaceChild(newTraitSelect, traitSelect)
+            newTraitSelect.value = 'Divines'
         }
 
-        else if(levelGroup2.includes(level)) {
-            return 'Flax'
+        else if(eso.isWeapon(type)) {
+            //  Hide weight select
+            weightSelect.style.display = 'none'
+
+            //  Set weapon traits
+            var newTraitSelect = document.createElement('select')
+            for (var key in eso.weaponTraits) {
+                var opt = document.createElement('option')
+                opt.value = key
+                opt.text = key
+                newTraitSelect.appendChild(opt)
+            }
+            row.cells[3].replaceChild(newTraitSelect, traitSelect)
+            newTraitSelect.value = 'Charged'
         }
 
-        else if(levelGroup3.includes(level)) {
-            return 'Cotton'
-        }
+        else if(eso.isJewelry(type)) {
+            //  Hide weight select
+            weightSelect.style.display = 'none'
 
-        else if(levelGroup4.includes(level)) {
-            return 'Spidersilk'
-        }
-
-        else if(levelGroup5.includes(level)) {
-            return 'Ebonthread'
-        }
-
-        else if(levelGroup6.includes(level)) {
-            return 'Kresh Fiber'
-        }
-
-        else if(levelGroup7.includes(level)) {
-            return 'Ironthread'
-        }
-
-        else if(levelGroup8.includes(level)) {
-            return 'Silverweave'
-        }
-
-        else if(levelGroup9.includes(level)) {
-            return 'Void Cloth'
-        }
-
-        else if(levelGroup10.includes(level)) { 
-            return 'Ancestor Silk'
-        }
-    } else if(weight == 'Medium') {
-        if(levelGroup1.includes(level)) {
-            return 'Rawhide'
-        }
-
-        else if(levelGroup2.includes(level)) {
-            return 'Hide'
-        }
-
-        else if(levelGroup3.includes(level)) {
-            return 'Leather'
-        }
-
-        else if(levelGroup4.includes(level)) {
-            return 'Thick Leather'
-        }
-
-        else if(levelGroup5.includes(level)) {
-            return 'Fell Hide'
-        }
-
-        else if(levelGroup6.includes(level)) {
-            return 'Topgrain Hide'
-        }
-
-        else if(levelGroup7.includes(level)) {
-            return 'Iron Hide'
-        }
-
-        else if(levelGroup8.includes(level)) {
-            return 'Superb Hide'
-        }
-
-        else if(levelGroup9.includes(level)) {
-            return 'Shadowhide'
-        }
-
-        else if(levelGroup10.includes(level)) { 
-            return 'Rubedo Leather'
-        }
-    } else if(weight == 'Heavy') {
-        if(levelGroup1.includes(level)) {
-            return 'Iron Ingot'
-        }
-
-        else if(levelGroup2.includes(level)) {
-            return 'Steel Ingot'
-        }
-
-        else if(levelGroup3.includes(level)) {
-            return 'Orichalcum Ingot'
-        }
-
-        else if(levelGroup4.includes(level)) {
-            return 'Dwarven Ingot'
-        }
-
-        else if(levelGroup5.includes(level)) {
-            return 'Ebony Ingot'
-        }
-
-        else if(levelGroup6.includes(level)) {
-            return 'Calcinium Ingot'
-        }
-
-        else if(levelGroup7.includes(level)) {
-            return 'Galatite Ingot'
-        }
-
-        else if(levelGroup8.includes(level)) {
-            return 'Quicksilver Ingot'
-        }
-
-        else if(levelGroup9.includes(level)) {
-            return 'Voidstone Ingot'
-        }
-
-        else if(levelGroup10.includes(level)) { 
-            return 'Rubedite Ingot'
+            //  Set weapon traits
+            var newTraitSelect = document.createElement('select')
+            for (var key in eso.jewelryTraits) {
+                var opt = document.createElement('option')
+                opt.value = key
+                opt.text = key
+                newTraitSelect.appendChild(opt)
+            }
+            row.cells[3].replaceChild(newTraitSelect, traitSelect)
+            newTraitSelect.value = 'Arcane'
         }
     }
 
-    return 'Unknown'
-}
+    var trait = row.cells[3].childNodes[0].value
 
-function armorMatCountFromSlotAndLevel(slot, level) {
-    var slotFactor = 0
-    if(slot == 'Chest') {
-        slotFactor = 2
+    items[rowIndex].type = type
+    items[rowIndex].level = level
+    items[rowIndex].weight = weight
+    items[rowIndex].trait = trait
+    items[rowIndex].quality = quality
+
+    //  Update material, trait, and improvement accordingly
+    if(eso.isArmor(type)) {
+        items[rowIndex].mat = eso.armorMatFromWeightAndLevel(weight, level)
+        items[rowIndex].matQty = eso.armorMatQtyFromTypeAndLevel(type, level)
+        items[rowIndex].traitGem = eso.armorTraits[trait]
+
+        if(weight == 'Light' || weight == 'Medium') {
+            items[rowIndex].fineMat  = eso.clothingImprovement['Fine']
+            items[rowIndex].superiorMat = eso.clothingImprovement['Superior']
+            items[rowIndex].epicMat = eso.clothingImprovement['Epic']
+            items[rowIndex].legendaryMat = eso.clothingImprovement['Legendary']
+        } else if(weight == 'Heavy') {
+            items[rowIndex].fineMat  = eso.blacksmithingImprovement['Fine']
+            items[rowIndex].superiorMat = eso.blacksmithingImprovement['Superior']
+            items[rowIndex].epicMat = eso.blacksmithingImprovement['Epic']
+            items[rowIndex].legendaryMat = eso.blacksmithingImprovement['Legendary']
+        }
+
+        if(quality == 'Basic') {
+            items[rowIndex].fineQty  = 0
+            items[rowIndex].superiorQty = 0
+            items[rowIndex].epicQty = 0
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Fine') {
+            items[rowIndex].fineQty  = 2
+            items[rowIndex].superiorQty = 0
+            items[rowIndex].epicQty = 0
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Superior') {
+            items[rowIndex].fineQty  = 2
+            items[rowIndex].superiorQty = 3
+            items[rowIndex].epicQty = 0
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Epic') {
+            items[rowIndex].fineQty  = 2
+            items[rowIndex].superiorQty = 3
+            items[rowIndex].epicQty = 4
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Legendary') {
+            items[rowIndex].fineQty  = 2
+            items[rowIndex].superiorQty = 3
+            items[rowIndex].epicQty = 4
+            items[rowIndex].legendaryQty = 8
+        }
+    } else if(eso.isWeapon(type)) {
+        items[rowIndex].mat = eso.weaponMatFromTypeAndLevel(type, level)
+        items[rowIndex].matQty = eso.weaponMatQtyFromTypeAndLevel(type, level)
+        items[rowIndex].traitGem = eso.weaponTraits[trait]
+
+        if(eso.blacksmithingWeaponTypes.includes(type)) {
+            items[rowIndex].fineMat  = eso.blacksmithingImprovement['Fine']
+            items[rowIndex].superiorMat = eso.blacksmithingImprovement['Superior']
+            items[rowIndex].epicMat = eso.blacksmithingImprovement['Epic']
+            items[rowIndex].legendaryMat = eso.blacksmithingImprovement['Legendary']
+        } else if(eso.woodworkingWeaponTypes.includes(type)) {
+            items[rowIndex].fineMat  = eso.woodworkingImprovement['Fine']
+            items[rowIndex].superiorMat = eso.woodworkingImprovement['Superior']
+            items[rowIndex].epicMat = eso.woodworkingImprovement['Epic']
+            items[rowIndex].legendaryMat = eso.woodworkingImprovement['Legendary']
+        }
+
+        if(quality == 'Basic') {
+            items[rowIndex].fineQty  = 0
+            items[rowIndex].superiorQty = 0
+            items[rowIndex].epicQty = 0
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Fine') {
+            items[rowIndex].fineQty  = 2
+            items[rowIndex].superiorQty = 0
+            items[rowIndex].epicQty = 0
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Superior') {
+            items[rowIndex].fineQty  = 2
+            items[rowIndex].superiorQty = 3
+            items[rowIndex].epicQty = 0
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Epic') {
+            items[rowIndex].fineQty  = 2
+            items[rowIndex].superiorQty = 3
+            items[rowIndex].epicQty = 4
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Legendary') {
+            items[rowIndex].fineQty  = 2
+            items[rowIndex].superiorQty = 3
+            items[rowIndex].epicQty = 4
+            items[rowIndex].legendaryQty = 8
+        }
+    } else if(eso.isJewelry(item)) {
+
     }
-    else if(slot == 'Legs') {
-        slotFactor = 1
-    }
 
-    var levelFactor = 0
-    if(levelGroup1.includes(level)) {
-        levelFactor = 5 + levelGroup1.indexOf(level)
-    }
-
-    else if(levelGroup2.includes(level)) {
-        levelFactor = 6 + levelGroup2.indexOf(level)
-    }
-
-    else if(levelGroup3.includes(level)) {
-        levelFactor = 7 + levelGroup3.indexOf(level)
-    }
-
-    else if(levelGroup4.includes(level)) {
-        levelFactor = 8 + levelGroup4.indexOf(level)
-    }
-
-    else if(levelGroup5.includes(level)) {
-        levelFactor = 9 + levelGroup5.indexOf(level)
-    }
-
-    else if(levelGroup6.includes(level)) {
-        levelFactor = 10 + levelGroup6.indexOf(level)
-    }
-
-    else if(levelGroup7.includes(level)) {
-        levelFactor = 11 + levelGroup7.indexOf(level)
-    }
-
-    else if(levelGroup8.includes(level)) {
-        levelFactor = 12 + levelGroup8.indexOf(level)
-    }
-
-    else if(levelGroup9.includes(level)) {
-        levelFactor = 13 + levelGroup9.indexOf(level)
-    }
-
-    else if(levelGroup10.includes(level)) { 
-        levelFactor = 13
-    }
-
-    var matCount = levelFactor + slotFactor
-
-    if(level == 'CP 160') {
-        matCount *= 10
-    }
-
-    return matCount
+    updateShoppingList()
 }
 
 function updateShoppingList() {
     var shoppingList = {}
 
-    //  Loop over the armor table and update the shopping list
+    //  Loop over items and update the shopping list
     items.forEach(function (item, index) {
-        console.log(item)
+        //console.log(item)
 
         if(item.mat in shoppingList) {
             shoppingList[item.mat] += item.matQty
@@ -468,89 +445,13 @@ function updateShoppingList() {
     shoppingListTableFooter.rows[0].cells[1].innerHTML = totalCost
 }
 
-function updateArmorRow(rowIndex) {
-    var table = document.getElementById('armorTable')
-    var row = table.getElementsByTagName('tr')[rowIndex]
-
-    //  Get item slot
-    var slot = row.cells[0].childNodes[0].value
-
-    //  Get item level
-    var level = row.cells[1].childNodes[0].value
-
-    //  Get item weight
-    var weight = row.cells[2].childNodes[0].value
-
-    //  Get the material required to craft the basic item
-    var mat = armorMatFromLevelAndWeight(level, weight)
-
-    //  Get the required material quantity
-    var matQty = armorMatCountFromSlotAndLevel(slot, level)
-
-    //  Get the required trait gem
-    var trait = row.cells[3].childNodes[0].value
-    var traitGem = armorTraits[trait]
-
-    if(!items[rowIndex]) {
-        items[rowIndex] = {}
-    }
-    
-    items[rowIndex].mat = mat
-    items[rowIndex].matQty = matQty
-    items[rowIndex].traitGem = traitGem
-
-    //  Update improvement materials
-    if(weight == 'Light' || weight == 'Medium') {
-        items[rowIndex].fineMat  = clothingImprovement['Fine']
-        items[rowIndex].superiorMat = clothingImprovement['Superior']
-        items[rowIndex].epicMat = clothingImprovement['Epic']
-        items[rowIndex].legendaryMat = clothingImprovement['Legendary']
-    } else if(weight == 'Heavy') {
-        items[rowIndex].fineMat  = blacksmithingImprovement['Fine']
-        items[rowIndex].superiorMat = blacksmithingImprovement['Superior']
-        items[rowIndex].epicMat = blacksmithingImprovement['Epic']
-        items[rowIndex].legendaryMat = blacksmithingImprovement['Legendary']
-    }
-
-    //  Update improvement material quantities
-    var quality = row.cells[4].childNodes[0].value
-    if(quality == 'Basic') {
-        items[rowIndex].fineQty  = 0
-        items[rowIndex].superiorQty = 0
-        items[rowIndex].epicQty = 0
-        items[rowIndex].legendaryQty = 0
-    } else if(quality == 'Fine') {
-        items[rowIndex].fineQty  = 2
-        items[rowIndex].superiorQty = 0
-        items[rowIndex].epicQty = 0
-        items[rowIndex].legendaryQty = 0
-    } else if(quality == 'Superior') {
-        items[rowIndex].fineQty  = 2
-        items[rowIndex].superiorQty = 3
-        items[rowIndex].epicQty = 0
-        items[rowIndex].legendaryQty = 0
-    } else if(quality == 'Epic') {
-        items[rowIndex].fineQty  = 2
-        items[rowIndex].superiorQty = 3
-        items[rowIndex].epicQty = 4
-        items[rowIndex].legendaryQty = 0
-    } else if(quality == 'Legendary') {
-        items[rowIndex].fineQty  = 2
-        items[rowIndex].superiorQty = 3
-        items[rowIndex].epicQty = 4
-        items[rowIndex].legendaryQty = 8
-    }
-
-    updateShoppingList()
-}
-
-//  Handle adding new armor pieces to the armor table
-document.getElementById('addArmorButton').addEventListener('click', () => {
+//  Handle adding new items to craft
+document.getElementById('addItem').addEventListener('click', () => {
     addItem()
 })
 
-//  Use event delegation to handle clicks to elements in the armor table
-document.getElementById('armorTable').addEventListener('change', function(e) {
+//  Use event delegation to handle clicks to elements in the item table
+document.getElementById('itemTable').addEventListener('change', function(e) {
     //console.log('onChange:' + e.target.nodeName)
 
     if(e.target && e.target.nodeName == 'SELECT') {
@@ -559,6 +460,6 @@ document.getElementById('armorTable').addEventListener('change', function(e) {
         var row = e.target.closest('tr')
         //console.log('rowIndex: ' + row.rowIndex)
 
-        updateArmorRow(row.rowIndex)
+        updateItemTableRow(row.rowIndex)
     }
 })
