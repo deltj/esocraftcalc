@@ -462,7 +462,62 @@ function weaponMatFromTypeAndLevel(type, level) {
 exports.weaponMatFromTypeAndLevel = weaponMatFromTypeAndLevel
 
 function weaponMatQtyFromTypeAndLevel(type, level) {
-    matCount = 1
+    var levelFactor = 0
+    if(eso.levelGroup1.includes(level)) {
+        levelFactor = 3 + levelGroup1.indexOf(level)
+    }
+
+    else if(eso.levelGroup2.includes(level)) {
+        levelFactor = 4 + levelGroup2.indexOf(level)
+    }
+
+    else if(eso.levelGroup3.includes(level)) {
+        levelFactor = 5 + levelGroup3.indexOf(level)
+    }
+
+    else if(eso.levelGroup4.includes(level)) {
+        levelFactor = 6 + levelGroup4.indexOf(level)
+    }
+
+    else if(eso.levelGroup5.includes(level)) {
+        levelFactor = 7 + levelGroup5.indexOf(level)
+    }
+
+    else if(eso.levelGroup6.includes(level)) {
+        levelFactor = 8 + levelGroup6.indexOf(level)
+    }
+
+    else if(eso.levelGroup7.includes(level)) {
+        levelFactor = 9 + levelGroup7.indexOf(level)
+    }
+
+    else if(eso.levelGroup8.includes(level)) {
+        levelFactor = 10 + levelGroup8.indexOf(level)
+    }
+
+    else if(eso.levelGroup9.includes(level)) {
+        levelFactor = 11 + levelGroup9.indexOf(level)
+    }
+
+    else if(eso.levelGroup10.includes(level)) { 
+        if(eso.woodworkingWeaponTypes.includes(type)) {
+            levelFactor = 12
+        } else {
+            levelFactor = 11
+        }
+    }
+
+    let bigWeaps = ['Battle Axe', 'Maul', 'Greatsword']
+    let sizeFactor = 0
+    if(bigWeaps.includes(type)) {
+        sizeFactor = 3
+    }
+    
+    let matCount = levelFactor + sizeFactor
+
+    if(level == 'CP 160') {
+        matCount *= 10
+    }
 
     return matCount
 }
