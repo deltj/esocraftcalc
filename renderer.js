@@ -429,7 +429,7 @@ function updateShoppingList() {
 
         itemCell.innerHTML = item
         qtyCell.innerHTML = shoppingList[item]
-        costCell.innerHTML = cost
+        costCell.innerHTML = cost.toLocaleString()
 
         totalCost += cost
 
@@ -442,7 +442,7 @@ function updateShoppingList() {
     shoppingListTable.replaceChild(newShoppingListTableBody, oldShoppingListTableBody)
 
     shoppingListTableFooter = shoppingListTable.getElementsByTagName('tfoot')[0]
-    shoppingListTableFooter.rows[0].cells[1].innerHTML = totalCost
+    shoppingListTableFooter.rows[0].cells[1].innerHTML = totalCost.toLocaleString()
 }
 
 //  Handle adding new items to craft
