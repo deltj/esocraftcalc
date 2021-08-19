@@ -72,6 +72,18 @@ exports.levelGroup8 = levelGroup8
 exports.levelGroup9 = levelGroup9
 exports.levelGroup10 = levelGroup10
 
+//  Level groupings for jewelry
+const jewelryLevelGroup1 = levelGroup1.concat(levelGroup2)
+const jewelryLevelGroup2 = levelGroup3.concat(levelGroup4).concat(levelGroup5)
+const jewelryLevelGroup3 = levelGroup6.concat(levelGroup7).concat(['CP 70'])
+const jewelryLevelGroup4 = ['CP 80'].concat(levelGroup9)
+const jewelryLevelGroup5 = levelGroup10
+exports.jewelryLevelGroup1 = jewelryLevelGroup1
+exports.jewelryLevelGroup2 = jewelryLevelGroup2
+exports.jewelryLevelGroup3 = jewelryLevelGroup3
+exports.jewelryLevelGroup4 = jewelryLevelGroup4
+exports.jewelryLevelGroup5 = jewelryLevelGroup5
+
 const armorTraits = {
     'Divines' : 'Sapphire',
     'Invigorating' : 'Garnet',
@@ -143,6 +155,14 @@ const woodworkingImprovement = {
     'Legendary' : 'Rosin'
 }
 exports.woodworkingImprovement = woodworkingImprovement
+
+const jewelryImprovement = {
+    'Fine' : 'Terne Plating',
+    'Superior' : 'Iridium Plating',
+    'Epic' : 'Zircon Plating',
+    'Legendary' : 'Chromium Plating',
+}
+exports.jewelryImprovement = jewelryImprovement
 
 /** Determine whether the specified item is an armor piece.
  * @returns true if the the item is armor, false otherwise
@@ -461,6 +481,7 @@ function weaponMatFromTypeAndLevel(type, level) {
 }
 exports.weaponMatFromTypeAndLevel = weaponMatFromTypeAndLevel
 
+/** Determine the quantity of material required to craft a weapon of the specified type and level */
 function weaponMatQtyFromTypeAndLevel(type, level) {
     var levelFactor = 0
     if(eso.levelGroup1.includes(level)) {
@@ -522,3 +543,112 @@ function weaponMatQtyFromTypeAndLevel(type, level) {
     return matCount
 }
 exports.weaponMatQtyFromTypeAndLevel = weaponMatQtyFromTypeAndLevel
+
+/** Determine the material required to craft a jewelry piece with the specified level */
+function jewelryMatFromLevel(level) {
+    if(eso.jewelryLevelGroup1.includes(level)) {
+        return 'Pewter Ounce'
+    }
+
+    else if(eso.jewelryLevelGroup2.includes(level)) {
+        return 'Copper Ounce'
+    }
+
+    else if(eso.jewelryLevelGroup3.includes(level)) {
+        return 'Silver Ounce'
+    }
+
+    else if(eso.jewelryLevelGroup4.includes(level)) {
+        return 'Electrum Ounce'
+    }
+
+    else if(eso.jewelryLevelGroup5.includes(level)) {
+        return 'Platinum Ounce'
+    }
+
+    else {
+        return 'Unknown'
+    }
+}
+exports.jewelryMatFromLevel = jewelryMatFromLevel
+
+//  I haven't figured out the equation for necklace mats yet, so I'm using this as a temporary workaround
+const necklaceMatQty = {
+    '1' : 3,
+    '4' : 5,
+    '6' : 6,
+    '8' : 8,
+    '10' : 9,
+    '12' : 11,
+    '14' : 12,
+    '16' : 14,
+    '18' : 15,
+    '20' : 17,
+    '22' : 19,
+    '24' : 20,
+    '26' : 5,
+    '28' : 6,
+    '30' : 8,
+    '32' : 9,
+    '34' : 11,
+    '36' : 12,
+    '38' : 14,
+    '40' : 15,
+    '42' : 17,
+    '44' : 18,
+    '46' : 20,
+    '48' : 21,
+    '50' : 23,
+    'CP 10' : 6,
+    'CP 20' : 9,
+    'CP 30' : 12,
+    'CP 40' : 15,
+    'CP 50' : 18,
+    'CP 60' : 21,
+    'CP 70' : 24,
+    'CP 80' : 8,
+    'CP 90' : 12,
+    'CP 100' : 16,
+    'CP 110' : 20,
+    'CP 120' : 24,
+    'CP 130' : 28,
+    'CP 140' : 32,
+    'CP 150' : 15,
+    'CP 160' : 150
+}
+
+/** Determine the quantity of material required to craft a jewelry piece of the specified type and level */
+function jewelryMatQtyFromTypeAndLevel(type, level) {
+    if(type == 'Necklace') {
+        return necklaceMatQty[level]
+    }
+
+    let matCount = 0
+
+    if(jewelryLevelGroup1.includes(level)) {
+        matCount = 2 + jewelryLevelGroup1.indexOf(level)
+    }
+
+    else if(jewelryLevelGroup2.includes(level)) {
+        matCount = 3 + jewelryLevelGroup2.indexOf(level)
+    }
+
+    else if(jewelryLevelGroup3.includes(level)) {
+        matCount = 4 + 2 * jewelryLevelGroup3.indexOf(level)
+    }
+
+    else if(jewelryLevelGroup4.includes(level)) {
+        matCount = 6 + 2 * jewelryLevelGroup4.indexOf(level)
+    }
+
+    else if(jewelryLevelGroup5.includes(level)) {
+        matCount = 10
+    }
+
+    if(level == 'CP 160') {
+        matCount *= 10
+    }
+
+    return matCount
+}
+exports.jewelryMatQtyFromTypeAndLevel = jewelryMatQtyFromTypeAndLevel

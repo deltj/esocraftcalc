@@ -51,11 +51,11 @@ var priceTable = {
     'Sanded Ruby Ash' : 1,
 
     //  Jewelry
-    'Pewter Ounces' : 1,
-    'Copper Ounces' : 1,
-    'Silver Ounces' : 1,
-    'Electrum Ounces' : 1,
-    'Platinum Ounces' : 1,
+    'Pewter Ounce' : 7.20,
+    'Copper Ounce' : 11,
+    'Silver Ounce' : 71,
+    'Electrum Ounce' : 83,
+    'Platinum Ounce' : 35,
 
     //  Clothing improvement
     'Hemming' : 17,
@@ -76,10 +76,10 @@ var priceTable = {
     'Rosin' : 1,
 
     //  Jewelry improvement
-    'Terne Plating' : 1,
-    'Iridium Plating' : 1,
-    'Zircon Plating' : 1,
-    'Chromium Plating' : 1,
+    'Terne Plating' : 1770,
+    'Iridium Plating' : 12050,
+    'Zircon Plating' : 69000,
+    'Chromium Plating' : 205000,
 
     //  Armor traits
     'Sapphire' : 4,
@@ -129,7 +129,7 @@ function addItem() {
     var traitCell = document.createElement('td')
     var qualityCell = document.createElement('td')
 
-    var types = eso.armorSlots.concat(eso.blacksmithingWeaponTypes).concat(eso.woodworkingWeaponTypes)
+    var types = eso.armorSlots.concat(eso.blacksmithingWeaponTypes).concat(eso.woodworkingWeaponTypes).concat(eso.jewelryTypes)
     types.sort()
     var typeSelect = document.createElement('select')
     types.forEach(function (item, index) {
@@ -355,8 +355,42 @@ function updateItemTableRow(rowIndex) {
             items[rowIndex].epicQty = 4
             items[rowIndex].legendaryQty = 8
         }
-    } else if(eso.isJewelry(item)) {
+    } else if(eso.isJewelry(type)) {
+        items[rowIndex].mat = eso.jewelryMatFromLevel(level)
+        items[rowIndex].matQty = eso.jewelryMatQtyFromTypeAndLevel(type, level)
+        items[rowIndex].traitGem = eso.jewelryTraits[trait]
 
+        items[rowIndex].fineMat  = eso.jewelryImprovement['Fine']
+        items[rowIndex].superiorMat = eso.jewelryImprovement['Superior']
+        items[rowIndex].epicMat = eso.jewelryImprovement['Epic']
+        items[rowIndex].legendaryMat = eso.jewelryImprovement['Legendary']
+
+        if(quality == 'Basic') {
+            items[rowIndex].fineQty  = 0
+            items[rowIndex].superiorQty = 0
+            items[rowIndex].epicQty = 0
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Fine') {
+            items[rowIndex].fineQty  = 1
+            items[rowIndex].superiorQty = 0
+            items[rowIndex].epicQty = 0
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Superior') {
+            items[rowIndex].fineQty  = 1
+            items[rowIndex].superiorQty = 2
+            items[rowIndex].epicQty = 0
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Epic') {
+            items[rowIndex].fineQty  = 1
+            items[rowIndex].superiorQty = 2
+            items[rowIndex].epicQty = 3
+            items[rowIndex].legendaryQty = 0
+        } else if(quality == 'Legendary') {
+            items[rowIndex].fineQty  = 1
+            items[rowIndex].superiorQty = 2
+            items[rowIndex].epicQty = 3
+            items[rowIndex].legendaryQty = 4
+        }
     }
 
     updateShoppingList()
