@@ -128,6 +128,7 @@ function addItem() {
     var weightCell = document.createElement('td')
     var traitCell = document.createElement('td')
     var qualityCell = document.createElement('td')
+    var deleteCell = document.createElement('td')
 
     var types = eso.armorSlots.concat(eso.blacksmithingWeaponTypes).concat(eso.woodworkingWeaponTypes).concat(eso.jewelryTypes)
     types.sort()
@@ -178,12 +179,14 @@ function addItem() {
     weightCell.appendChild(weightSelect)
     traitCell.appendChild(traitSelect)
     qualityCell.appendChild(qualitySelect)
+    deleteCell.innerHTML = '<input type="image" id="deleteItem" src="./assets/delete.png" width="28" height="28" />'
 
     row.appendChild(typeCell)
     row.appendChild(levelCell)
     row.appendChild(weightCell)
     row.appendChild(traitCell)
     row.appendChild(qualityCell)
+    row.appendChild(deleteCell)
 
     table.appendChild(row)
 
@@ -396,6 +399,13 @@ function updateItemTableRow(rowIndex) {
     updateShoppingList()
 }
 
+/** Update the specified row index in the item table. */
+function deleteItemTableRow(rowIndex) {
+    document.getElementById('itemTable').deleteRow(rowIndex)
+    items.splice(rowIndex, 1)
+    updateShoppingList()
+}
+
 function updateShoppingList() {
     var shoppingList = {}
 
@@ -484,16 +494,18 @@ document.getElementById('addItem').addEventListener('click', () => {
     addItem()
 })
 
-//  Use event delegation to handle clicks to elements in the item table
+//  Use event delegation to handle clicks to selects in the item table
 document.getElementById('itemTable').addEventListener('change', function(e) {
-    //console.log('onChange:' + e.target.nodeName)
-
     if(e.target && e.target.nodeName == 'SELECT') {
-        //console.log('select changed!')
-
-        var row = e.target.closest('tr')
-        //console.log('rowIndex: ' + row.rowIndex)
-
+        let row = e.target.closest('tr')
         updateItemTableRow(row.rowIndex)
+    }
+})
+
+//  Use event delegation to handle clicks to row delete buttons
+document.getElementById('itemTable').addEventListener('click', function(e) {
+    if(e.target && e.target.nodeName == 'INPUT') {
+        let row = e.target.closest('tr')
+        deleteItemTableRow(row.rowIndex)
     }
 })
