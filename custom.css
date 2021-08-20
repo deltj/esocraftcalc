@@ -30,3 +30,7 @@ input[type="button"] {
 .legendary {
     color: #e6bc16; }
 */
+
+input[type="number"] {
+    width: 125px;
+}

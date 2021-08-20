@@ -84,6 +84,67 @@ exports.jewelryLevelGroup3 = jewelryLevelGroup3
 exports.jewelryLevelGroup4 = jewelryLevelGroup4
 exports.jewelryLevelGroup5 = jewelryLevelGroup5
 
+const clothingMats = [
+    'Jute',
+    'Flax',
+    'Cotton',
+    'Spidersilk',
+    'Ebonthread',
+    'Kresh Fiber',
+    'Ironthread',
+    'Silverweave',
+    'Void Cloth',
+    'Ancestor Silk',
+    'Rawhide',
+    'Hide',
+    'Leather',
+    'Thick Leather',
+    'Fell Hide',
+    'Topgrain Hide',
+    'Iron Hide',
+    'Superb Hide',
+    'Shadowhide',
+    'Rubedo Leather'
+]
+exports.clothingMats = clothingMats
+
+const blacksmithingMats = [
+    'Iron Ingot',
+    'Steel Ingot',
+    'Orichalcum Ingot',
+    'Dwarven Ingot',
+    'Ebony Ingot',
+    'Calcinium Ingot',
+    'Galatite Ingot',
+    'Quicksilver Ingot',
+    'Voidstone Ingot',
+    'Rubedite Ingot'
+]
+exports.blacksmithingMats = blacksmithingMats
+
+const woodworkingMats = [
+    'Sanded Maple',
+    'Sanded Oak',
+    'Sanded Beech',
+    'Sanded Hickory',
+    'Sanded Yew',
+    'Sanded Birch',
+    'Sanded Ash',
+    'Sanded Mahogany',
+    'Sanded Nightwood',
+    'Sanded Ruby Ash'
+]
+exports.woodworkingMats = woodworkingMats
+
+const jewelryMats = [
+    'Pewter Ounce',
+    'Copper Ounce',
+    'Silver Ounce',
+    'Electrum Ounce',
+    'Platinum Ounce'
+]
+exports.jewelryMats = jewelryMats
+
 const armorTraits = {
     'Divines' : 'Sapphire',
     'Invigorating' : 'Garnet',

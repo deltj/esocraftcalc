@@ -1,3 +1,4 @@
+const {ipcRenderer} = require('electron')
 const eso = require('./eso.js')
 
 //  Cached item prices used for calculating the crafting cost
@@ -489,9 +490,14 @@ function updateShoppingList() {
     shoppingListTableFooter.rows[0].cells[1].innerHTML = totalCost.toLocaleString()
 }
 
-//  Handle adding new items to craft
+//  Handle click for the add item button
 document.getElementById('addItem').addEventListener('click', () => {
     addItem()
+})
+
+//  Handle click for the edit material proces button
+document.getElementById('editPrices').addEventListener('click', () => {
+    ipcRenderer.send('meaningful-channel-name', 'show-price-window')
 })
 
 //  Use event delegation to handle clicks to selects in the item table
