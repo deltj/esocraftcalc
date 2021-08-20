@@ -497,7 +497,7 @@ document.getElementById('addItem').addEventListener('click', () => {
 
 //  Handle click for the edit material proces button
 document.getElementById('editPrices').addEventListener('click', () => {
-    ipcRenderer.send('meaningful-channel-name', 'show-price-window')
+    ipcRenderer.send('show-price-window', '')
 })
 
 //  Use event delegation to handle clicks to selects in the item table
@@ -514,4 +514,9 @@ document.getElementById('itemTable').addEventListener('click', function(e) {
         let row = e.target.closest('tr')
         deleteItemTableRow(row.rowIndex)
     }
+})
+
+ipcRenderer.on('update-price-table', (event, arg) => {
+    priceTable = arg
+    updateShoppingList()
 })
