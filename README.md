@@ -1,6 +1,6 @@
 # ESO Crafting Calculator
 
-[![DeepScan grade](https://deepscan.io/api/teams/3139/projects/18277/branches/444593/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3139&pid=18277&bid=444593)
+[![DeepScan grade](https://deepscan.io/api/teams/3139/projects/18277/branches/444593/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=3139&pid=18277&bid=444593) [![CodeQL](https://github.com/deltj/esocraftcalc/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/deltj/esocraftcalc/actions/workflows/codeql-analysis.yml)
 
 ## Overview
 
