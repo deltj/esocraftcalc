@@ -82,3 +82,20 @@ document.getElementById('save').addEventListener('click', () => {
 
     ipcRenderer.sendSync('save-price-table', prices)
 })
+
+document.getElementById('loadTtc').addEventListener('click', () => {
+    //  Request TTC price table load by main process
+    prices = ipcRenderer.sendSync('load-ttc-price-table')
+
+    //  Update price table
+    let priceTable = document.getElementById('priceTable')
+    let priceTableBody = priceTable.getElementsByTagName('tbody')[0]
+
+    //  Items in the html price table should be in the same order that they appear in the mats array
+    mats.forEach(function (item, index) {
+        let row = priceTableBody.rows[index]
+        let input = row.cells[1].childNodes[0]
+        
+        input.value = prices[item]
+    })
+})

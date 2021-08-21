@@ -1,6 +1,7 @@
 const {app, BrowserWindow, ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
+const ttc = require('./ttc.js')
 
 //  Cached item prices used for calculating the crafting cost
 let priceTable = {
@@ -170,6 +171,8 @@ function createPriceWindow() {
 app.on('ready', function() {
   createMainWindow()
   //createPriceWindow()
+
+  //ttc.loadTtcPriceTable(priceTable)
 })
 
 // Quit when all windows are closed.
@@ -193,6 +196,16 @@ ipcMain.on('request-price-table', (event, arg) => {
   event.returnValue = priceTable
 })
 
+ipcMain.on('load-ttc-price-table', (event, arg) => {
+  ttc.loadTtcPriceTable().then((pt) => {
+    //console.log(pt)
+    priceTable = pt
+    event.returnValue = pt
+  }).catch(() => {
+    console.log('loadTtcPriceTable failed')
+  })
+})
+
 ipcMain.on('save-price-table', (event, arg) => {
   console.log(arg)
   priceTable = arg
@@ -203,7 +216,7 @@ ipcMain.on('save-price-table', (event, arg) => {
 ipcMain.on('show-price-window', (event, arg) => {
   if(priceWindow === null) {
     createPriceWindow()
-  } else {
-    priceWindow.show()
   }
+
+  priceWindow.show()
 })
