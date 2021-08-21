@@ -1,8 +1,17 @@
 const homedir = require('os').homedir()
 const fs = require('fs')
 
+//  Path to the TTC price table Lua file
 const ttcPriceTablePath = homedir + "\\Documents\\Elder Scrolls Online\\live\\AddOns\\TamrielTradeCentre\\PriceTable.lua"
 
+//  The TTC price table Lua file contains many nested tables.  The table nesting order is as follows:
+//      1: item ID
+//      2: quality (0-4)
+//      3: item level
+//  Rather than try to meaningfully parse the Lua table from JavaScript, we'll abuse the ordering and formatting of
+//  this information to form strings that uniquely identify the beginning of table entries for items.  After locating
+//  the beginning of the Lua table entry for a specific item, the next occurrence of the string 'SuggestedPrice' should be 
+//  the suggested price for this item (assuming that it has one).
 const ttcStrings = {
     'Jute' :                '[3320]={[0]={[1]',
     'Flax' :                '[3088]={[0]={[1]',
@@ -104,7 +113,7 @@ const ttcStrings = {
     'Chromium Plating' :    '[18124]={[4]={[1]',
 }
 
-/** Given a string matching a TTC price entry (as in those in the ttcStrings Object) return the TTC suggested price. */
+/** Given a string matching a TTC price entry (as in the ttcStrings Object above) return the TTC suggested price. */
 function getSuggestedPrice(matchString) {
     //  Find the first instance of the string SuggestedPrice
     let priceStart = matchString.indexOf('SuggestedPrice')
@@ -113,10 +122,12 @@ function getSuggestedPrice(matchString) {
         return -1
     }
 
-    //  The suggested price begins 17 characters after the S in SuggestedPrice
+    //TODO: Check whether the located SuggestedPrice is too far from the match string, and therefore belongs to a different item
+
+    //  The suggested price value begins 17 characters after the S in SuggestedPrice
     priceStart += 17
 
-    //  Find the next comma after the start of the price value.  Its index will bound the suggested price
+    //  Find the next comma after the start of the price value.  Its index will bound the suggested price value
     let priceEnd = matchString.indexOf(',', priceStart)
     if(priceEnd == -1) {
         //  No next comma found?  weird
@@ -131,7 +142,7 @@ function getSuggestedPrice(matchString) {
     return suggestedPrice
 }
 
-/** Loads prices for items in the ttcStrings Object from the local TTC price table.  The local TTC price table is a Lua program which must be parsed manually. */
+/** Loads prices from the local TTC price table (which is a Lua program which must be parsed manually). */
 async function loadTtcPriceTable() {
     let priceTable = {}
     let stream = fs.createReadStream(ttcPriceTablePath, {autoClose: true})
