@@ -1,7 +1,9 @@
 const {app, BrowserWindow, dialog, ipcMain} = require('electron')
+const { fstat } = require('fs')
 const path = require('path')
 const url = require('url')
 const ttc = require('./ttc.js')
+const fs = require('fs')
 
 //  Cached item prices used for calculating the crafting cost
 //  Note: This price table is only meant to be a starting point for the user.  Updated prices are expected
@@ -203,17 +205,34 @@ ipcMain.on('load-ttc-price-table', (event, arg) => {
         priceTable = pt
         event.returnValue = pt
     }).catch(() => {
-        console.log(dialog.showMessageBox(priceWindow, {title: 'Error', message: 'Failed to open TTC price table.  Is TTC installed?', type: 'error'}))
+        dialog.showMessageBox(priceWindow, {title: 'Error', message: 'Failed to open TTC price table.  Is TTC installed?', type: 'error'})
     })
 })
 
+//  The save-price-table message is sent by the priceWindow when the user clicks the Save button
 ipcMain.on('save-price-table', (event, arg) => {
-  console.log(arg)
-  priceTable = arg
-  mainWindow.webContents.send('update-price-table', priceTable)
-  priceWindow.close()
+    //  arg contains the price table updated by the user
+    //console.log(arg)
+
+    //  Update the in-memory copy of the price table
+    priceTable = arg
+
+    //  Save a copy of the price table to disk
+    let priceTableJsonStr = JSON.stringify(priceTable, null, 2)
+    //console.log(priceTableJsonStr)
+    fs.writeFile('eccPriceTable.json', priceTableJsonStr, (err) => {
+        if(err) {
+            dialog.showMessageBox(priceWindow, {title: 'Error', message: 'Failed to write price table json.', type: 'error'})
+        }
+    })
+
+    //  Tell the main window to update the shopping list with the new prices
+    mainWindow.webContents.send('update-price-table', priceTable)
+
+    priceWindow.close()
 })
 
+//  The show-price-window message is sent by the mainWindow when the user clicks the Edit material prices button
 ipcMain.on('show-price-window', (event, arg) => {
   if(priceWindow === null) {
     createPriceWindow()
