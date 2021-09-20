@@ -1,8 +1,23 @@
 const {ipcRenderer} = require('electron')
 const eso = require('./eso.js')
 
-/** The array of items to be crafted */
+//  Local copy of item prices
+let prices = {}
+
+//  An array containing the items to be crafted
 var items = []
+
+/**
+ * This event fires when the whole page has been loaded and parsed.
+ * see: https://developer.mozilla.org/en-US/docs/Web/API/Window/DOMContentLoaded_event
+ * 
+ * We shall use this event to request current prices
+ */
+ document.addEventListener('DOMContentLoaded', function(e) {
+     //  Request the price table from the main process
+    prices = ipcRenderer.sendSync('request-price-table', '')
+    console.log(prices)
+ })
 
 /** Adds an item to the table of crafted items */
 function addItem() {
@@ -355,7 +370,7 @@ function updateShoppingList() {
         var qtyCell = document.createElement('td')
         var costCell = document.createElement('td')
 
-        var cost = shoppingList[item] * priceTable[item]
+        var cost = shoppingList[item] * prices[item]
 
         itemCell.innerHTML = item
         qtyCell.innerHTML = shoppingList[item]
@@ -402,6 +417,6 @@ document.getElementById('itemTable').addEventListener('click', function(e) {
 })
 
 ipcRenderer.on('update-price-table', (event, arg) => {
-    priceTable = arg
+    prices = arg
     updateShoppingList()
 })
